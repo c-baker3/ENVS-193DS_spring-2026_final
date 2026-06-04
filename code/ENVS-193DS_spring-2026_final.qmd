@@ -1,5 +1,5 @@
 ---
-title: "ENVS-193DS_spring-2026_final"
+title: "ENVS193DS Final"
 author: "Callie Baker"
 format:
   pdf:
@@ -9,9 +9,13 @@ execute:
   warning: false # use this to make sure warnings don't show upl
 ---
 
+# GitHub repo
+Access my repo [here](https://github.com/c-baker3/ENVS-193DS_spring-2026_final).
+
 # Set up
 
 ```{r}
+#| label: packages
 
 
 
