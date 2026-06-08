@@ -307,7 +307,7 @@ as_flextable(run_mod)
 
 
 ## f. Write about your results
-I tended to go on runs more often on days following nights with more sleep **(reference table/figure here)???**. For every 1 hour increase in sleep the previous night, the odds of going on a run increased by a factor of 2.97 (95% CI: [1.37, 9.40], p = 0.021, $\alpha$ = 0.05). After sleeping for 10 hours, the probability of going on a run the next day is 0.90 (95% CI [0.39, 0.99]), compared to a probability of 0.01 (95% CI [0.00, 0.25]) after sleeping for only 4 hours. This suggests that sleep duration has an influence on my likelihood of running. 
+I tended to go on runs more often on days following nights with more sleep. For every 1 hour increase in sleep the previous night, the odds of going on a run increased by a factor of 2.97 (95% CI: [1.37, 9.40], p = 0.021, $\alpha$ = 0.05). After sleeping for 10 hours, the probability of going on a run the next day is 0.90 (95% CI [0.39, 0.99]), compared to a probability of 0.01 (95% CI [0.00, 0.25]) after sleeping for only 4 hours. This suggests that sleep duration has an influence on my likelihood of running. 
 
 
 ## g. Sharing your affective visualization
