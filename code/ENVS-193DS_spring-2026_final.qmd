@@ -21,10 +21,10 @@ Access my repo [here](https://github.com/c-baker3/ENVS-193DS_spring-2026_final).
 library(tidyverse) # general use
 library(here) # file organization
 library(janitor) # cleaning data frames
-library(DHARMa) # for diagnostics
+library(DHARMa) # for GLM diagnostics
 library(ggeffects) # for ggpredict
 library(flextable) # for flextable
-library(gtsummary)
+library(gtsummary) # for GLM
 
 # read in data
 nests <- read_csv(here("data", "nest_data_final.csv"))
@@ -255,31 +255,31 @@ mod_preds <- ggpredict(run_mod,
                        terms = "sleep_hours [5:10 by = 1]")
 
 # base layer: ggplot with raw data
-# data frame: my_data
-ggplot(my_data,
-       aes(x = sleep_hours,
-           y = is_run)) +
+ggplot(my_data,             # data frame: my_data
+       aes(x = sleep_hours, # x-axis: sleep duration 
+           y = is_run)) +   # y-axis: probability of running (0/1)
   # first layer: raw observations
-  geom_point(size = 3,
-             alpha = 0.4) +
+  geom_point(size = 3,             # made points larger
+             alpha = 0.4,          # made points more transparent
+             color = "navyblue") + # changed points to navy blue
   # second layer: confidence interval ribbon from model predictions
-  geom_ribbon(data = mod_preds,
+  geom_ribbon(data = mod_preds, # data frame: model predictions
               aes(x = x,
                   y = predicted,
                   ymin = conf.low,
                   ymax = conf.high),
-              fill = "steelblue",
-              alpha = 0.4) +
+              fill = "steelblue", # changed ribbon color to steel blue
+              alpha = 0.4) + # made ribbon more transparent
   # third layer: logistic curve from model predictions
   geom_line(data = mod_preds,
             aes(x = x,
                 y = predicted),
-            # custom color
-            color = "navyblue") +
+            color = "navyblue") +  # changed line color to navy
   # constrained y-axis to 0 and 1
   scale_y_continuous(limits = c(0, 1),
                      breaks = c(0, 1)) +
-  # relabeled axes and added title
+  # relabeled x- and y-axis
+  # added title
   labs(title = 
 "More sleep is associated with a higher probability of running the next day",
        x     = "Sleep the previous night (hours)",
@@ -303,7 +303,7 @@ as_flextable(run_mod)
 
 
 ## e. Write a caption
-**Figure 1. Longer sleep duration is associated with a higher probability of going on a run the next day**. Open circles represent individual workout observations (0 = not a run, 1 = run). The navy blue line represents model predicted probability of running across the range of observed sleep values (5-10 hours), and the shaded ribbon represents the 95% confidence interval around model predictions. Data collected from personal fitness tracking records from 2026-04-14 to 2025-05-26. 
+**Figure 1. Longer sleep duration is associated with a higher probability of going on a run the next day**. Blue circles represent individual workout observations (0 = not a run, 1 = run). The navy blue line represents model predicted probability of running across the range of observed sleep values (5-10 hours), and the shaded blue ribbon represents the 95% confidence interval around model predictions. Data collected from personal fitness tracking records between 2026-04-14 and 2025-05-26. 
 
 
 ## f. Write about your results
