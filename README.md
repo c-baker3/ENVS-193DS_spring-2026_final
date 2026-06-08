@@ -15,4 +15,4 @@ The `images` folder includes all image files used for the assignment.
 
 ## Rendered output
 
-The rendered output for the Final is [here](link to pdf).
+The rendered output for the Final is [here](https://github.com/c-baker3/ENVS-193DS_spring-2026_final/blob/main/code/ENVS-193DS_spring-2026_final.pdf).
