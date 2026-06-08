@@ -30,7 +30,6 @@ library(gtsummary)
 nests <- read_csv(here("data", "nest_data_final.csv"))
 # read in personal data to object from csv
 my_data <- read_csv(here("data", "envs193ds-personal-data.csv"))
-
 ```
 
 
@@ -48,7 +47,6 @@ my_data <- my_data |>
   mutate(is_run = case_when(
     workout_type == "Run" ~ 1, # run = 1
     .default = 0))             # all other workout types = 0
-
 ```
 
 # Problem 1. Research writing
@@ -116,8 +114,11 @@ nests_clean <- nests |>
 
 # Problem 3. Affective and exploratory visualizations
 
-## a. Comparising visualizations
+## a. Comparing visualizations
 
+- 
+- 
+- 
 - 
 
 ## b. Designing an analysis
@@ -128,15 +129,11 @@ I used a binomial GLM to ask whether sleep duration the previous night (continuo
 
 ### Think about your data
 
-For a binomial GLM, the assumptions needed to be met are:
-
-- observations are independent 
-- the response variable follows a binary distribution (there are binary outcomes)
-- there is a linear relationship between transformed expected response in terms of link function and explanatory variables (WHAT DOES THIS MEAN -- REPHRASE)
+The assumptions for a binomial GLM are met. First, each workout entry represents a separate day, so observations are independent. Second, there are binary outcomes, seen through the response variable run having 1 (a run occurred) and 0 (a run did not occur) outcomes. Finally, there is a linear relationship between transformed expected response in terms of link function and explanatory variables (WHAT DOES THIS MEAN -- REPHRASE). 
 
 ### Write your model
 
-**In words**: Sleep duration the previous night predicts the occurence of going on a run (yes = 1, no = 0).
+**In words**: Sleep duration the previous night predicts the occurrence of going on a run (yes = 1, no = 0).
 
 **In code**:
 
@@ -153,7 +150,6 @@ run_mod <- glm(
   data = my_data,
   # binomial error distribution for binary response
   family = binomial)
-
 ```
 
 
@@ -166,46 +162,45 @@ run_mod <- glm(
 
 # simulated residuals from GLM for diagnostic plots
 plot(simulateResiduals(run_mod))
-
 ```
 
-**Info from left plot (QQ plot of residuals)**:
+**Information from left plot (QQ plot of residuals)**:
 
-- KS test: do my residuals follow a uniform distribution? → generally yes (CHECK)
-- Dispersion test: are your residuals more dispersed than expected from a uniform distribution? → no
-- Outlier test: are there outliers in your data set that could be influencing model coefficients or predictions? → no
+- **KS test**: Do my residuals follow a uniform distribution? → Generally yes
+- **Dispersion test**: Are your residuals more dispersed than expected from a uniform distribution? → No
+- **Outlier test**: Are there outliers in your data set that could be influencing model coefficients or predictions? → No
 
-**Info from right plot (residuals vs predicted values)**:
+**Information from right plot (residuals vs predicted values)**:
 
-- By default, R generates the reference lines for quartiles: 25, 50, 75
-- Not that informative but look at patterns within residuals across the range → DHARMa diagnostics flag issues in 25th quartile due to small sample size, not because the model is wrong. 
+In visually assessing for randomly arranged residuals across the range of predicted values, DHARMa diagnostics flag issues in the 25th quartile. This is likely due to the small sample size, not because the model is wrong. Therefore, it it reasonable to say that residuals are randomly arranged across the range of predicted values. 
 
 
-Looking at the model coefficients
+### Look at the model coefficients
+
 ```{r}
 #| label: model summary
 
 # displayed model summary
 summary(run_mod)
-
 ```
 
+**Note**: 
+- all estimates are log odds, so calculate the probability of a run when sleep is 0 below using inverse logit
 
 
 ### Calculate an effect size
 
-Calculate inverse logit
 ```{r}
 #| label: coefficients-b0
 
 # calculated inverse logit  
 plogis(-8.7011)
-
 ```
-**Note**: 
 
-- inverse logit is 0.00016
-- The probability of going on a run if sleep duration is 0 hours is 0.00016?
+**Interpretation**: 
+
+- inverse logit: 0.00016
+- the probability of going on a run if sleep duration is 0 hours is 0.00016
 
 
 ```{r}
@@ -214,19 +209,16 @@ plogis(-8.7011)
 # calculated odds ratio
 gtsummary::tbl_regression(run_mod, 
                           exponentiate = TRUE)
-
 ```
-**Note**:
 
-- *results at top of this page*
-- odds ratio is 2.97
-- 2.97 > 1 so the probability of going on a run increases by a factor of 2.97 with every 1 hour increase in sleep
+**Interpretation**:
 
-**Summary**: 
-For every 1 hour increase in sleep, the the odds of going on a run increase by a factor of 2.97 (95% CI: [1.37, 9.40], p = 0.021, ⍺ = 0.05).
+- *results table rendered at the top of this page*
+- odds ratio: 2.97
+- 2.97 > 1 so the probability of going on a run increases by a factor of 2.97 with every 1 hour increase in sleep (95% CI: [1.37, 9.40])
 
 
-**Looking at the model predictions (where to put this section?)
+### Looking at the model predictions
 
 - using probabilities to determine chance of getting certain outcome
 - line represents the probability of 1 (going on a run) actually occurring
@@ -234,14 +226,13 @@ For every 1 hour increase in sleep, the the odds of going on a run increase by a
 ```{r}
 #| label: model-predictions
 
-# what is the probabilty of going on a run after sleeping for 10 hours?
+# what is the probability of going on a run after sleeping for 10 hours?
 ggpredict(run_mod,
           terms = "sleep_hours [10]")
 
-# what is the probabilty of going on a run after sleeping for 4 hours?
+# what is the probability of going on a run after sleeping for 4 hours?
 ggpredict(run_mod,
           terms = "sleep_hours [4]")
-
 ```
 
 **Note**:
@@ -277,7 +268,8 @@ ggplot(my_data,
                   y = predicted,
                   ymin = conf.low,
                   ymax = conf.high),
-                  alpha = 0.4) +
+              fill = "steelblue",
+              alpha = 0.4) +
   # third layer: logistic curve from model predictions
   geom_line(data = mod_preds,
             aes(x = x,
@@ -307,17 +299,15 @@ ggplot(my_data,
 
 # displaying model in table
 as_flextable(run_mod)
-
 ```
 
 
 ## e. Write a caption
-Figure caption
+**Figure 1. Longer sleep duration is associated with a higher probability of going on a run the next day**. Open circles represent individual workout observations (0 = not a run, 1 = run). The navy blue line represents model predicted probability of running across the range of observed sleep values (5-10 hours), and the shaded ribbon represents the 95% confidence interval around model predictions. Data collected from personal fitness tracking records from 2026-04-14 to 2025-05-26. 
 
 
 ## f. Write about your results
-ADD
-For every 1 hour increase in sleep, the the odds of going on a run increase by a factor of 2.97 (95% CI: [1.37, 9.40], p = 0.021, ⍺ = 0.05).
+I tended to go on runs more often on days following nights with more sleep **(reference table/figure here)???**. For every 1 hour increase in sleep the previous night, the odds of going on a run increased by a factor of 2.97 (95% CI: [1.37, 9.40], p = 0.021, $\alpha$ = 0.05). After sleeping for 10 hours, the probability of going on a run the next day is 0.90 (95% CI [0.39, 0.99]), compared to a probability of 0.01 (95% CI [0.00, 0.25]) after sleeping for only 4 hours. This suggests that sleep duration has an influence on my likelihood of running. 
 
 
 ## g. Sharing your affective visualization
