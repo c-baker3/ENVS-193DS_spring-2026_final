@@ -34,6 +34,23 @@ my_data <- read_csv(here("data", "envs193ds-personal-data.csv"))
 ```
 
 
+```{r}
+#| label: cleaning-personal-data
+
+# setting up personal data for problem 3
+
+# cleaned column names
+my_data <- my_data |> 
+  clean_names()
+
+# created new column: 1 if workout was a run, 0 if not
+my_data <- my_data |>
+  mutate(is_run = case_when(
+    workout_type == "Run" ~ 1, # run = 1
+    .default = 0))             # all other workout types = 0
+
+```
+
 # Problem 1. Research writing
 
 ## a. Transparent statistical methods
@@ -101,36 +118,27 @@ nests_clean <- nests |>
 
 ## a. Comparising visualizations
 
+- 
 
 ## b. Designing an analysis
 
+I used a binomial GLM to ask whether sleep duration the previous night (continuous, measured in hours) predicts the probability that my workout was a run (binary, 1 = run and 0 = all other workout types). This analysis was appropriate because the response variable is binary, so a standardized linear model can not be used as the assumption of normally distributed errors is not met. Therefore, I used a GLM with a binomial error distribution because this test is specifically designed for response variables that have outcomes of 0/1. Sleep is a continuous predictor variable, so it works as the explanatory variable in my logistic regression.  
 
 ## c. Check any assumptions and run your analysis
 
-### Setting up
+### Think about your data
 
-```{r}
-#| label: cleaning-data
+For a binomial GLM, the assumptions needed to be met are:
 
-# cleaned column names
-my_data <- my_data |> 
-  clean_names()
+- observations are independent 
+- the response variable follows a binary distribution (there are binary outcomes)
+- there is a linear relationship between transformed expected response in terms of link function and explanatory variables (WHAT DOES THIS MEAN -- REPHRASE)
 
-# created new column: 1 if workout was a run, 0 if not
-my_data <- my_data |>
-  mutate(is_run = case_when(
-    workout_type == "Run" ~ 1, # run = 1
-    .default = 0))             # all other workout types = 0
+### Write your model
 
-```
+**In words**: Sleep duration the previous night predicts the occurence of going on a run (yes = 1, no = 0).
 
-### Check assumptions
-
-NEED TO DO 
-indep obs, what else...
-
-
-### Run the analysis from part b
+**In code**:
 
 ```{r}
 #| label: fitting-model-glm
@@ -149,7 +157,8 @@ run_mod <- glm(
 ```
 
 
-Checking diagnostics
+### Look at the diagnostics 
+
 ```{r}
 #| label: diagnostics
 #| fig-height: 6
