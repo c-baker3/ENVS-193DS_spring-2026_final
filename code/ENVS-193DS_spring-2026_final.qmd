@@ -38,12 +38,19 @@ my_data <- read_csv(here("data", "envs193ds-personal-data.csv"))
 
 ## a. Transparent statistical methods
 
+**Part 1**: The statistical test used in Part 1 was a generalized linear model (logistic regression) with a binomial distribution. The response variable is a binary outcome to reflect the probability that the American Avocet uses the mircohabit (1) or doesn't (0). The predictor is a continuous variable: distance to water edge (UNITS).
+
+**Part 2**: The statistical test used in Part 2 was a chi-square test of independence which is used to determine whether there is a relationship between two categorical variables. The categorical variables are bird species (American Avocet, Forster's Tern, Black-necked Stilt) and habitat type (managed pond, non-tidal marsh, salt pond, tidal marsh, tidal mudflat). The test compares observed counts to expected counts. 
 
 ## b. Suggestions for rewriting
 
+**Part 1**: American Avocets were more likely to use microhabitats that were closer to the water's edge, and this relationship was strong enough that is unlikely to be the result of random chance alone. 
+
+**Part 2**: The three shorebird species did not use the five habitat types in equal proportions: each species showed a distinct pattern of habitat preference, and these differences across species are unlikely to reflect chance. 
 
 ## c. Further analysis
 
+Tidal inundation frequency could influence American Avocet microhabitat use because Avocets forage in shallow flooded areas so microhabitats that are too rarely or too frequently inundated may not provided the water depth conditions needed for successful foraging. Tidal inundation frequency is a continuous variable, measured as the proportion of time a microhabitat is flooded per tidal cycle; this variable could be recorded using tidal monitoring stations. 
 
 # Problem 2. Data analysis
 
