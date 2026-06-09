@@ -25,6 +25,7 @@ library(DHARMa) # for GLM diagnostics
 library(ggeffects) # for ggpredict
 library(flextable) # for flextable
 library(gtsummary) # for GLM
+library(MuMIn) # for AIC
 
 # read in data
 nests <- read_csv(here("data", "nest_data_final.csv"))
@@ -49,6 +50,7 @@ my_data <- my_data |>
     .default = 0))             # all other workout types = 0
 ```
 
+
 # Problem 1. Research writing
 
 ## a. Transparent statistical methods
@@ -66,6 +68,7 @@ my_data <- my_data |>
 ## c. Further analysis
 
 Tidal inundation frequency could influence American Avocet microhabitat use because Avocets forage in shallow flooded areas so microhabitats that are too rarely or too frequently inundated may not provided the water depth conditions needed for successful foraging. Tidal inundation frequency is a continuous variable, measured as the proportion of time a microhabitat is flooded per tidal cycle; this variable could be recorded using tidal monitoring stations. 
+
 
 # Problem 2. Data analysis
 
@@ -92,26 +95,76 @@ mutate(species_name = as_factor(species_name),
 # selected columns of interest 
 select(height_cm, case_control, species_name)
 
-# displayed 10 random rows from data frame
-slice_sample(nests_clean, n = 10)
+# checked structure
+str(nests_clean)
+
+# displayed ten random rows
+slice_sample(nests_clean, # cleaned data frame to display
+             n = 10)      # showed ten rows
 ```
 
 ## b. Response variable
-
+The response variable `case_control` is binary and describes whether a tree in the survey contained a nest (1) or was an "available" tree for birds to nest in (0). 
 
 ## c. Purpose of study
 
+- Tree height is a continuous predictor variable (centimeters). FINISH WITH CITATION
+- Acacia ant species is a categorical predictor variable with three levels: C. sjostedti, C. mimosae, and C. nigriceps. FINISH WITH CITATION
 
 ## d. Table of models
+
+| Model number | Tree Height (cm) | Ant Species | Model description                 |  
+|--------------|:----------------:|:-----------:|:---------------------------------:|  
+| 1            |       X          |      X      | all predictors, no interaction    | 
+| 2            |       X          |      X      | all predictors, interaction term  |   
 
 
 ## e. Run the models
 
+```{r}
+#| label: model fitting
+#| output: false
+
+# model 1: no interaction
+# formula: case_control as a function of tree height plus ant species
+model1 <- glm(case_control ~ height_cm + species_name, 
+            # data: nests_clean data frame
+            data = nests_clean,
+            # binomial error distribution for binary response
+            family = binomial)
+
+# model 2: interaction between tree height and ant species
+# formula: case_control as a function of tree height times ant species
+model2 <- glm(case_control ~ height_cm * species_name,
+            # data: nests_clean data frame
+            data   = nests_clean,
+            family = binomial)
+```
+
 
 ## f. Select the best model
 
+```{r}
+#| label: calculating-AIC
+
+# calculated AIC
+AICc (model1,
+      model2) |>
+# arranged output in order of AIC
+arrange (AICc)
+```
+
+The best model as determined by Akaike's Information Criterion (AIC) is model 2 which shows the presence of nests as a function of tree height multiplied by ant species. 
+
 
 ## g. Check the diagnostics
+
+```{r}
+
+
+
+```
+
 
 
 ## h. Visualize the model predictions 
