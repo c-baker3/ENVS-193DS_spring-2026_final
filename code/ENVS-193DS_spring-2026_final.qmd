@@ -152,6 +152,8 @@ AICc (model1,
       model2) |>
 # arranged output in order of AIC
 arrange (AICc)
+
+summary(model2)
 ```
 
 The best model as determined by Akaike's Information Criterion (AIC) is model 2 which shows the presence of nests as a function of tree height multiplied by ant species. 
@@ -160,20 +162,117 @@ The best model as determined by Akaike's Information Criterion (AIC) is model 2 
 ## g. Check the diagnostics
 
 ```{r}
+#| label: checking-diagnostics
+#| fig-height: 6
+#| fig-width: 8
 
-
+# simulated residuals from DHARMa for model 2
+plot(simulateResiduals(model2))
 
 ```
 
 
+FIX BELOW
+
+**Information from left plot (QQ plot of residuals)**:
+ There appears to be a uniform distribution because the points follow the reference line which matches the quantiles of simulated residuals with quantiles of uniform distribution
+
+- **KS test**: Do my residuals follow a uniform distribution?  → Yes 
+- **Dispersion test**: Are your residuals more dispersed than expected from a uniform distribution? → No
+- **Outlier test**: Are there outliers in your data set that could be influencing model coefficients or predictions? → No
+
+**Information from right plot (residuals vs predicted values)**:
+
+- There appear to be randomly arranged residuals across the range of predicted values. 
+
 
 ## h. Visualize the model predictions 
+
+Generated model predictions across range of height values for each ant species
+```{r}
+#| label: visualize-model-predictions
+
+# generated model predictions across range of height values for each ant species
+preds <- ggpredict(
+  model2, # model object
+  terms = c("height_cm [all]", "species_name")) |>  # predictors 
+  # renamed column to fit original data frame
+  rename(height_cm = x,
+         species_name = group)
+```
+
+
+```{r}
+#| label: final-figure
+#| fig-height: 6
+#| fig-width: 10
+
+# base layer: ggplot
+ggplot(data = nests_clean, # data frame: nests_clean
+       mapping = aes(x = height_cm, # x-axis: height (cm)
+                     y = case_control )) + # y-axis: presense of nest (0/1)
+  # first layer: underlying points representing individual observations
+  geom_point(aes(color = species_name), # colored points by ant species
+             shape = 21, # made the points open circle
+             alpha = 0.4) + # made points more transparent
+  # second layer: model prediction line
+  geom_line(data = preds, # data frame: preds
+            mapping = aes(x = height_cm, # x-axis: height (cm)
+                          y = predicted, # y-axis: predicted
+                          color = species_name), # color by species name
+            linewidth = 2) +
+  # third layer: confidence interval
+  geom_ribbon(data = preds, # data frame: -preds
+              mapping = aes(
+                        y = predicted,
+                        ymin = conf.low,
+                        ymax = conf.high,
+                        fill = species_name), # colored by species name
+               alpha = 0.1) + # made ribbon more transparent
+  # created panel for each ant species
+  facet_wrap(~ species_name,
+             labeller = labeller(
+             species_name = c(
+                 "Crematogaster sjostedti" = "C. sjostedti",
+                 "Crematogaster mimosae"   = "C. mimosae",
+                 "Crematogaster nigriceps" = "C. nigriceps"))) +
+  # changed to custom colors for lines and points             
+  scale_color_manual(values = c(
+    "Crematogaster sjostedti" = "darkblue", 
+    "Crematogaster mimosae" = "darkgreen",
+    "Crematogaster nigriceps" = "brown4")) +
+  # changed to custom colors for ribbons
+  scale_fill_manual(values = c(
+    "Crematogaster sjostedti" = "darkblue",
+    "Crematogaster mimosae"   = "darkgreen",
+    "Crematogaster nigriceps" = "brown4")) +
+  # set x axis range and breaks
+  scale_x_continuous(limits = c(0, 600),
+                     breaks = c(0, 200, 400, 600)) +
+  # relabaled x- and y-axes
+  labs (x = "Tree height (cm)",
+        y = "Probability of nest occurrence") +
+  # changed theme from default
+  theme_minimal() +
+  # removed legend
+  theme(legend.position = "none")
+
+```
 
 
 ## i. Write the caption for your figure
 
 
 ## j. Calculate model predictions
+
+```{r}
+#| label: model-predictions
+
+# what is the probability of nest occurence at a value of 600cm (the tallest tree in the dataset?
+ggpredict(model2,
+          terms = "height_cm [600]")
+
+```
 
 
 ## k. Interpret your results
@@ -296,7 +395,7 @@ gtsummary::tbl_regression(run_mod,
 - line represents the probability of 1 (going on a run) actually occurring
 
 ```{r}
-#| label: model-predictions
+#| label: personal-model-predictions
 
 # what is the probability of going on a run after sleeping for 10 hours?
 ggpredict(run_mod,
