@@ -35,7 +35,7 @@ my_data <- read_csv(here("data", "envs193ds-personal-data.csv"))
 
 
 ```{r}
-#| label: cleaning-personal-data
+#| label: cleaning personal data
 
 # setting up personal data for problem 3
 
@@ -59,11 +59,13 @@ my_data <- my_data |>
 
 **Part 2**: The statistical test used in Part 2 was a chi-square test of independence which is used to determine whether there is a relationship between two categorical variables. The categorical variables are bird species (American Avocet, Forster's Tern, Black-necked Stilt) and habitat type (managed pond, non-tidal marsh, salt pond, tidal marsh, tidal mudflat). The test compares observed counts to expected counts. 
 
+
 ## b. Suggestions for rewriting
 
 **Part 1**: American Avocets were more likely to use microhabitats that were closer to the water's edge, and this relationship was strong enough that is unlikely to be the result of random chance alone. 
 
 **Part 2**: The three shorebird species did not use the five habitat types in equal proportions: each species showed a distinct pattern of habitat preference, and these differences across species are unlikely to reflect chance. 
+
 
 ## c. Further analysis
 
@@ -75,7 +77,7 @@ Tidal inundation frequency could influence American Avocet microhabitat use beca
 ## a. Clean and wrangle
 
 ```{r}
-#| label: cleaning
+#| label: cleaning nests data
 
 # created new object from nests
 nests_clean <- nests |> 
@@ -103,13 +105,19 @@ slice_sample(nests_clean, # cleaned data frame to display
              n = 10)      # showed ten rows
 ```
 
+
 ## b. Response variable
 The response variable `case_control` is binary and describes whether a tree in the survey contained a nest (1) or was an "available" tree for birds to nest in (0). 
 
+
 ## c. Purpose of study
 
-- Tree height is a continuous predictor variable (centimeters). FINISH WITH CITATION
-- Acacia ant species is a categorical predictor variable with three levels: C. sjostedti, C. mimosae, and C. nigriceps. FINISH WITH CITATION
+- Tree height is a continuous predictor variable (centimeters). As tree height increases, the probability of nest presence in the tree will likely increase because taller trees provide more protection from predators on the ground; taller trees also offer more canpoy structure for effective nest placement This reasoning was found WHERE. 
+-- FINISH WITH CITATION. 
+
+- Acacia ant species is a categorical predictor variable with three levels: C. sjostedti, C. mimosae, and C. nigriceps. Ant species type could predict nest occurrence because different species display different levels of aggressiveness and have different colony sizes; these factors may either attract or deter nesting birds depending on whether the ants provide protection from predators or themselves threaten the birds. This reasoning was found WHERE. 
+-- FINISH WITH CITATION
+
 
 ## d. Table of models
 
@@ -133,11 +141,11 @@ model1 <- glm(case_control ~ height_cm + species_name,
             # binomial error distribution for binary response
             family = binomial)
 
-# model 2: interaction between tree height and ant species
+# model 2: interaction term (tree height x ant species)
 # formula: case_control as a function of tree height times ant species
 model2 <- glm(case_control ~ height_cm * species_name,
             # data: nests_clean data frame
-            data   = nests_clean,
+            data = nests_clean,
             # binomial error distribution for binary response
             family = binomial)
 ```
@@ -146,19 +154,16 @@ model2 <- glm(case_control ~ height_cm * species_name,
 ## f. Select the best model
 
 ```{r}
-#| label: calculating-AIC
+#| label: calculating AIC
 
 # calculated AIC
 AICc (model1,
       model2) |>
-# arranged output in order of AIC
+# arranged by decreasing AIC values
 arrange (AICc)
-
-# summarized model 2
-summary(model2)
 ```
 
-The best model as determined by Akaike's Information Criterion (AIC) is model 2 which shows the presence of nests as a function of tree height multiplied by ant species. 
+**Conclusion**: The best model as determined by Akaike's Information Criterion (AIC) is model 2 which displays the presence of nests as a function of tree height multiplied by ant species. CHECK FOR CORRECTNESS. 
 
 
 ## g. Check the diagnostics
@@ -173,19 +178,11 @@ plot(simulateResiduals(model2))
 
 ```
 
+**Information from QQ plot of residuals**:
+ There appears to be a uniform distribution because the points follow the reference line, which matches the quantiles of simulated residuals with quantiles of uniform distribution. The residuals do not appear more dispersed than expected from a uniform distribution, and there does not appear to be any outliers in the data set that could be influencing model coefficients or predictions. 
 
-FIX BELOW
-
-**Information from left plot (QQ plot of residuals)**:
- There appears to be a uniform distribution because the points follow the reference line which matches the quantiles of simulated residuals with quantiles of uniform distribution
-
-- **KS test**: Do my residuals follow a uniform distribution?  → Yes 
-- **Dispersion test**: Are your residuals more dispersed than expected from a uniform distribution? → No
-- **Outlier test**: Are there outliers in your data set that could be influencing model coefficients or predictions? → No
-
-**Information from right plot (residuals vs predicted values)**:
-
-- There appear to be randomly arranged residuals across the range of predicted values. 
+**Information from DHARMa residual vs predicted**:
+There appear to be randomly arranged residuals across the range of predicted values. 
 
 
 ## h. Visualize the model predictions 
@@ -193,11 +190,12 @@ FIX BELOW
 ```{r}
 #| label: visualize-model-predictions
 
-# generated model predictions across range of height values for each ant species
+# generated model predictions across range of height values for each ant
+# species
 preds <- ggpredict(
-  model2, # model object
+  model2, # model object 2
   terms = c("height_cm [all]", "species_name")) |>  # predictors 
-  # renamed column to fit original data frame
+  # renamed columns
   rename(height_cm = x,
          species_name = group)
 ```
@@ -210,29 +208,28 @@ preds <- ggpredict(
 
 # base layer: ggplot
 ggplot(data = nests_clean, # data frame: nests_clean
-       mapping = aes(x = height_cm, # x-axis: height (cm)
-                     y = case_control )) + # y-axis: presense of nest (0/1)
+       mapping = aes(x = height_cm,        # x-axis: height (cm)
+                     y = case_control )) + # y-axis: presence of nest (0/1)
   # first layer: underlying points representing individual observations
   geom_point(aes(color = species_name), # colored points by ant species
-                 shape = 21, # made the points open circle
-                 alpha = 0.4) + # made points more transparent
+                 shape = 21,            # made the points open circle
+                 alpha = 0.4) +         # made points more transparent
   # second layer: model prediction line
-  geom_line(data = preds, # data frame: preds
+  geom_line(data = preds,                # data frame: preds for model 2
             mapping = aes(x = height_cm, # x-axis: height (cm)
                           y = predicted, # y-axis: predicted
                           color = species_name), # colored line by ant species
-            linewidth = 2) + # made line wider
-  # third layer: confidence interval
+            linewidth = 2) +             # made line wider
+  # third layer: ribbon for 95% confidence interval
   geom_ribbon(data = preds, # data frame: preds
-              mapping = aes(
-                        y = predicted, 
-                        ymin = conf.low, 
-                        ymax = conf.high,
-                        fill = species_name), # colored ribbon by ant species
-               alpha = 0.1) + # made ribbon more transparent
-  # created panel for each ant species
+              mapping = aes(y = predicted, 
+                            ymin = conf.low, 
+                            ymax = conf.high,
+                            fill = species_name), # colored ribbon by species
+               alpha = 0.1) +  # made ribbon more transparent
+  # created separate panel for each ant species
   facet_wrap(~ species_name,
-             # labeled each panel by species name
+             # labeled each panel at the top by species name
              labeller = labeller(species_name = c(
                  "Crematogaster sjostedti" = "C. sjostedti",
                  "Crematogaster mimosae"   = "C. mimosae",
@@ -247,10 +244,10 @@ ggplot(data = nests_clean, # data frame: nests_clean
     "Crematogaster sjostedti" = "darkblue",
     "Crematogaster mimosae"   = "darkgreen",
     "Crematogaster nigriceps" = "brown4")) +
-  # set x axis range and breaks
+  # set x-axis range and breaks
   scale_x_continuous(limits = c(0, 600),
                      breaks = c(0, 200, 400, 600)) +
-  # relabaled x- and y-axes
+  # relabeled x- and y-axes
   labs (x = "Tree height (cm)",
         y = "Probability of nest occurrence") +
   # changed theme from default
@@ -259,44 +256,54 @@ ggplot(data = nests_clean, # data frame: nests_clean
   theme(panel.grid = element_blank()) +
   # removed legend
   theme(legend.position = "none")
-
 ```
+
 
 ## i. Write the caption for your figure
 
-**Figure 1. Probability of bird nest occurrence increases with tree height across all three acacia ant species.** Open circles represent individual tree observations (1 = nest present, 0 = nest absent), colored by ant species. Solid lines represent model predicted probability of nest occurence across the range of observed tree heights, and shaded ribbons represent 95% confidence intervals. 
+**Figure 1. Probability of bird nest occurrence increases with tree height across all three acacia ant species.** Open circles represent individual tree observations (1 = nest present, 0 = nest absent), colored by ant species. C. sjostedti is represented in navy blue, C. mimosae in dark green, and C. nigriceps in dark brown. Solid lines represent model predicted probability of nest occurrence across the range of observed tree heights (0 to 600 cm), and shaded ribbons represent 95% confidence intervals. Data source: Lujan, E., Nielsen, R., Short, Z., Wicks, S., Nderitu Watetu, W., Malingati Khasoha, L., Palmer, T. M., Goheen, J. R., & Alston, J. M. (2023). Data, code, and metadata for: Symbiotic acacia ants drive nesting behavior by birds in an African savanna [Data set]. Zenodo. https://doi.org/10.5281/zenodo.8373322.  
+
 
 ## j. Calculate model predictions
 
 ```{r}
 #| label: model-predictions
 
-# what is the probability of nest occurrence at a value of 600cm (the tallest tree in the dataset?
+# what is the probability of nest occurrence at a value of 600cm (the 
+# tallest tree in the dataset)? 
 ggpredict(model2,
           terms = c("height_cm [600]", "species_name"))
 ```
 
+
 ## k. Interpret your results
 
-At the tallest tree in the dataset (600 cm), the predicted probability of nest occurrence was 0.20 for C. sjostedti (95% CI [0.00, 0.99]), 0.74 for C. mimosae (95% CI [0.48, 0.90]), and 1 for C. nigriceps (95% CI [1.00, 1.00]) (Figure 1). Across all three ant species, probability of nest occurrence increased with tree height, suggesting that taller trees are generally more attractive nesting sites for birds regardless of ant identity. However, ant species modulated this relationship, with [highest species] showing the steepest increase in nest probability with tree height and [lowest species] showing the shallowest. This pattern is consistent with the idea that ant species vary in their aggressiveness and ability to deter nest predators — birds may preferentially nest in trees occupied by more protective ant species, particularly as tree height increases and nest sites become more exposed.
+Tree height and ant species interact to predict probability of bird nest occurrence. As tree height increases, the probability of nest occurrence increases across presence of all three ant species, suggesting that taller trees are generally better nesting sites for birds regardless of ant species. 
+
+Additionally, the effect of tree height on nest occurrence probability differs across ant species, with C. nigriceps showing the strongest relationship (odds ratio: [X]) and C. sjostedti showing the weakest (odds ratio: [X]).
+-- FILL IN EFFECT SIZE FROM ODDS RATIO??
+
+At 600 cm, the predicted probability of nest occurrence is 0.20 (95% CI [0.00, 0.99]) for C. sjostedti, 0.74 (95% CI [0.48, 0.90]) for C. mimosae, and 1 (95% CI [1.00, 1.00]) for C. nigriceps.
 
 
 # Problem 3. Affective and exploratory visualizations
 
 ## a. Comparing visualizations
-I compared my final affective visualization (presented in Workshop 10; different from the original draft in Homework 3) to the exploratory visualizations from Homework 2:
+**Note**: I compared my final affective visualization (presented in Workshop 10; different from the original draft in Homework 3) to the exploratory visualizations from Homework 2.
 
-- **Differences**: My affective visualization displays the logistic regression model (predicted probability of running as a function of sleep duration) within a hand drawn watercolor landscape, using illustrated runners and hourglasses as visual metaphors in place of geometric plot elements. The two exploratory visualizations from Homework 2 prioritized clarity and efficiency over emotional and creative aspects, using standard statistical geometry. The boxplot with jitter directly compares the distributions of workout duration across three workout types (categorical groups), while the scatterplot shows the relationship between two continuous variables (sleep duration and workout duration) with no model overlaid and no artistic embellishment.
+- **Differences**: My affective visualization displays the logistic regression model (predicted probability of running as a function of sleep duration) within a hand drawn watercolor landscape, using illustrated runners and hourglasses as visual metaphors in place of geometric plot elements. Meanwhile, the two exploratory visualizations from Homework 2 prioritized clarity and efficiency over emotional and creative aspects, using standard statistical geometry. The boxplot with jitter directly compares the distributions of workout duration across three workout types (categorical groups), while the scatterplot shows the relationship between two continuous variables (sleep duration and workout duration) with no model overlaid and no artistic aspects. 
 
-- **Similarities**: All three visualizations use sleep duration or workout type on the x-axis and show some form of individual observations; the jittered open circles in the boxplot, the individual points in the scatterplot, and the binary data underlying the logistic curve in the affective visualization. 
+- **Similarities**: All three visualizations use sleep duration or workout type on the x-axis and show some form of individual observations: the jittered open circles in the boxplot, the individual points in the scatterplot, and the binary data underlying the logistic curve in the affective visualization. 
 
-- **Patterns**: The scatterplot of sleep vs workout duration shows no clear trend; points are scattered without an obvious directional pattern, with most clustering around 60 minutes regardless of sleep duration. This makes sense because workout duration includes lifts and yoga, which the boxplot shows are consistently around 60-65 minutes regardless of other factors; meanwhile, runs have a much wider spread (roughly 36-75 minutes) and the lowest median of the three groups. Isolating runs as a binary outcome in the affective visualization therefore reveals a cleaner pattern (a steep positive relationship between sleep and probability of running, rising from near zero at 5 hours to near 1 at 10 hours) than using duration across all workout types. 
+- **Patterns**: The scatterplot of sleep vs workout duration shows no clear trend; points are scattered without an obvious directional pattern, with most clustering around 60 minutes regardless of sleep duration. This is logical because workout duration includes lifts and yoga, which the boxplot shows are consistently around 60-65 minutes regardless of other factors; meanwhile, runs have a much wider spread (roughly 36-75 minutes) and the lowest median of the three groups. Isolating runs as a binary outcome in the affective visualization therefore reveals a cleaner pattern (a steep positive relationship between sleep and probability of running, rising from near zero at 5 hours to near 1 at 10 hours) than using duration across all workout types. 
 
-- **Feedback**: NEED TO DO
+- **Feedback**: My original plan was to create my affective visualization from a boxplot with overlaid jitter comparing workout type against sleep duration the previous night. After meeting with An during week 9, I decided to narrow my focus to runs specifically, since runs had the most observations in my dataset and there appeared to be a relationship between sleep duration and whether or not I went on a run. My final affective visualization therefore depicts the probability of going on a run as a function of sleep duration, based on a binomial GLM rather than the boxplot I originally planned.
+
 
 ## b. Designing an analysis
 
 I used a binomial GLM to ask whether sleep duration the previous night (continuous, measured in hours) predicts the probability that my workout was a run (binary, 1 = run and 0 = all other workout types). This analysis was appropriate because the response variable is binary, so a standardized linear model can not be used as the assumption of normally distributed errors is not met. Therefore, I used a GLM with a binomial error distribution because this test is specifically designed for response variables that have outcomes of 0/1. Sleep is a continuous predictor variable, so it works as the explanatory variable in my logistic regression.  
+
 
 ## c. Check any assumptions and run your analysis
 
@@ -343,7 +350,7 @@ plot(simulateResiduals(run_mod))
 - **Dispersion test**: Are your residuals more dispersed than expected from a uniform distribution? → No
 - **Outlier test**: Are there outliers in your data set that could be influencing model coefficients or predictions? → No
 
-**Information from right plot (residuals vs predicted values)**:
+**Information from right plot (DHARMa residual vs predicted)**:
 
 In visually assessing for randomly arranged residuals across the range of predicted values, DHARMa diagnostics flag issues in the 25th quartile. This is likely due to the small sample size, not because the model is wrong. Therefore, it it reasonable to say that residuals are randomly arranged across the range of predicted values. 
 
@@ -436,32 +443,31 @@ ggplot(my_data,             # data frame: my_data
   geom_point(size = 3,             # made points larger
              alpha = 0.4,          # made points more transparent
              color = "navyblue") + # changed points to navy blue
-  # second layer: confidence interval ribbon from model predictions
+  # second layer: 95% confidence interval ribbon from model predictions
   geom_ribbon(data = mod_preds, # data frame: model predictions
               aes(x = x,
                   y = predicted,
                   ymin = conf.low,
                   ymax = conf.high),
               fill = "steelblue", # changed ribbon color to steel blue
-              alpha = 0.4) + # made ribbon more transparent
+              alpha = 0.4) +      # made ribbon more transparent
   # third layer: logistic curve from model predictions
   geom_line(data = mod_preds,
             aes(x = x,
                 y = predicted),
             color = "navyblue") +  # changed line color to navy
-  # constrained y-axis to 0 and 1
-  scale_y_continuous(limits = c(0, 1),
-                     breaks = c(0, 1)) +
-  # relabeled x- and y-axis
   # added title
+  # relabeled x- and y-axis
   labs(title = 
 "More sleep is associated with a higher probability of running the next day",
-       x     = "Sleep the previous night (hours)",
-       y     = "Probability of going on a run (1 = yes, 0 = no)") +
+       x = "Sleep the previous night (hours)",
+       y = "Probability of going on a run (1 = yes, 0 = no)") +
   # changed theme from default
   theme_minimal() +
-  # bolded title
-  theme(plot.title = element_text(face = "bold"))
+  # made title bold 
+  theme(plot.title = element_text(face = "bold")) +
+  # removed legend
+  theme(legend.position = "none")
 
 ```
 
@@ -477,7 +483,7 @@ as_flextable(run_mod)
 
 
 ## e. Write a caption
-**Figure 1. Longer sleep duration is associated with a higher probability of going on a run the next day**. Blue circles represent individual workout observations (0 = not a run, 1 = run). The navy blue line represents model predicted probability of running across the range of observed sleep values (5-10 hours), and the shaded blue ribbon represents the 95% confidence interval around model predictions. Data collected from personal fitness tracking records between 2026-04-14 and 2025-05-26. 
+**Figure 2. Longer sleep duration is associated with a higher probability of going on a run the next day**. Blue circles represent individual workout observations (0 = not a run, 1 = run). The navy blue line represents model predicted probability of running across the range of observed sleep values (5-10 hours), and the shaded blue ribbon represents the 95% confidence interval around model predictions. Data collected from personal fitness tracking records between 2026-04-14 and 2025-05-26. 
 
 
 ## f. Write about your results
