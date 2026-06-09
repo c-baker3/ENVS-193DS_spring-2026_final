@@ -138,6 +138,7 @@ model1 <- glm(case_control ~ height_cm + species_name,
 model2 <- glm(case_control ~ height_cm * species_name,
             # data: nests_clean data frame
             data   = nests_clean,
+            # binomial error distribution for binary response
             family = binomial)
 ```
 
@@ -153,6 +154,7 @@ AICc (model1,
 # arranged output in order of AIC
 arrange (AICc)
 
+# summarized model 2
 summary(model2)
 ```
 
@@ -188,7 +190,6 @@ FIX BELOW
 
 ## h. Visualize the model predictions 
 
-Generated model predictions across range of height values for each ant species
 ```{r}
 #| label: visualize-model-predictions
 
@@ -213,26 +214,26 @@ ggplot(data = nests_clean, # data frame: nests_clean
                      y = case_control )) + # y-axis: presense of nest (0/1)
   # first layer: underlying points representing individual observations
   geom_point(aes(color = species_name), # colored points by ant species
-             shape = 21, # made the points open circle
-             alpha = 0.4) + # made points more transparent
+                 shape = 21, # made the points open circle
+                 alpha = 0.4) + # made points more transparent
   # second layer: model prediction line
   geom_line(data = preds, # data frame: preds
             mapping = aes(x = height_cm, # x-axis: height (cm)
                           y = predicted, # y-axis: predicted
-                          color = species_name), # color by species name
-            linewidth = 2) +
+                          color = species_name), # colored line by ant species
+            linewidth = 2) + # made line wider
   # third layer: confidence interval
-  geom_ribbon(data = preds, # data frame: -preds
+  geom_ribbon(data = preds, # data frame: preds
               mapping = aes(
-                        y = predicted,
-                        ymin = conf.low,
+                        y = predicted, 
+                        ymin = conf.low, 
                         ymax = conf.high,
-                        fill = species_name), # colored by species name
+                        fill = species_name), # colored ribbon by ant species
                alpha = 0.1) + # made ribbon more transparent
   # created panel for each ant species
   facet_wrap(~ species_name,
-             labeller = labeller(
-             species_name = c(
+             # labeled each panel by species name
+             labeller = labeller(species_name = c(
                  "Crematogaster sjostedti" = "C. sjostedti",
                  "Crematogaster mimosae"   = "C. mimosae",
                  "Crematogaster nigriceps" = "C. nigriceps"))) +
@@ -254,28 +255,30 @@ ggplot(data = nests_clean, # data frame: nests_clean
         y = "Probability of nest occurrence") +
   # changed theme from default
   theme_minimal() +
+  # removed panel grids
+  theme(panel.grid = element_blank()) +
   # removed legend
   theme(legend.position = "none")
 
 ```
 
-
 ## i. Write the caption for your figure
 
+**Figure 1. Probability of bird nest occurrence increases with tree height across all three acacia ant species.** Open circles represent individual tree observations (1 = nest present, 0 = nest absent), colored by ant species. Solid lines represent model predicted probability of nest occurence across the range of observed tree heights, and shaded ribbons represent 95% confidence intervals. 
 
 ## j. Calculate model predictions
 
 ```{r}
 #| label: model-predictions
 
-# what is the probability of nest occurence at a value of 600cm (the tallest tree in the dataset?
+# what is the probability of nest occurrence at a value of 600cm (the tallest tree in the dataset?
 ggpredict(model2,
-          terms = "height_cm [600]")
-
+          terms = c("height_cm [600]", "species_name"))
 ```
 
-
 ## k. Interpret your results
+
+At the tallest tree in the dataset (600 cm), the predicted probability of nest occurrence was 0.20 for C. sjostedti (95% CI [0.00, 0.99]), 0.74 for C. mimosae (95% CI [0.48, 0.90]), and 1 for C. nigriceps (95% CI [1.00, 1.00]) (Figure 1). Across all three ant species, probability of nest occurrence increased with tree height, suggesting that taller trees are generally more attractive nesting sites for birds regardless of ant identity. However, ant species modulated this relationship, with [highest species] showing the steepest increase in nest probability with tree height and [lowest species] showing the shallowest. This pattern is consistent with the idea that ant species vary in their aggressiveness and ability to deter nest predators — birds may preferentially nest in trees occupied by more protective ant species, particularly as tree height increases and nest sites become more exposed.
 
 
 # Problem 3. Affective and exploratory visualizations
