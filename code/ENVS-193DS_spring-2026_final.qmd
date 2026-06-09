@@ -1,6 +1,7 @@
 ---
 title: "ENVS193DS Final"
 author: "Callie Baker"
+date: "2026-06-09"
 format:
   pdf:
     toc: true # use this to display a table of contents
@@ -40,11 +41,11 @@ my_data <- read_csv(here("data", "envs193ds-personal-data.csv"))
 
 # setting up personal data for problem 3
 
-# cleaned column names
+# cleaned column names to snake case
 my_data <- my_data |> 
   clean_names()
 
-# created new column: 1 if workout was a run, 0 if not
+# created new column for binary variable: 1 if workout was a run, 0 if not
 my_data <- my_data |>
   mutate(is_run = case_when(
     workout_type == "Run" ~ 1, # run = 1
@@ -56,21 +57,21 @@ my_data <- my_data |>
 
 ## a. Transparent statistical methods
 
-**Part 1**: The statistical test used in Part 1 was a generalized linear model (logistic regression) with a binomial distribution. The response variable is a binary outcome to reflect the probability that the American Avocet uses the mircohabitat (1) or doesn't (0). The predictor is a continuous variable: distance to water edge (UNITS).
+**Part 1**: In Part 1, the co-worker used a binomial generalized linear model (logistic regression). The response variable is a binary outcome reflecting whether the American Avocet uses the microhabitat (1) or does not (0), and the predictor is a continuous variable: distance to water edge (meters).
 
-**Part 2**: The statistical test used in Part 2 was a chi-square test of independence which is used to determine whether there is a relationship between two categorical variables. The categorical variables are bird species (American Avocet, Forster's Tern, Black-necked Stilt) and habitat type (managed pond, non-tidal marsh, salt pond, tidal marsh, tidal mudflat). The test compares observed counts to expected counts. 
+**Part 2**: In Part 2, the co-worker used a chi-square test of independence to ask whether a relationship exists between two categorical variables: bird species (American Avocet, Black-necked Stilt, Forster's Tern) and habitat type (managed pond, non-tidal marsh, salt pond, tidal marsh, tidal mudflat). The test compares observed counts to expected counts to determine if the two variables are associated. 
 
 
 ## b. Suggestions for rewriting
 
-**Part 1**: American Avocets were more likely to use microhabitats that were closer to the water's edge, and this relationship was strong enough that is unlikely to be the result of random chance alone. 
+**Part 1**: American Avocets were more likely to use the microhabitats that were closer to the water's edge, and this relationship was strong enough that it is unlikely to be the result of random chance alone. 
 
 **Part 2**: The three shorebird species did not use the five habitat types in equal proportions: each species showed a distinct pattern of habitat preference, and these differences across species are unlikely to reflect chance. 
 
 
 ## c. Further analysis
 
-Tidal inundation frequency could influence American Avocet microhabitat use because Avocets forage in shallow flooded areas so microhabitats that are too rarely or too frequently inundated may not provided the water depth conditions needed for successful foraging. Tidal inundation frequency is a continuous variable, measured as the proportion of time a microhabitat is flooded per tidal cycle; this variable could be recorded using tidal monitoring stations. 
+Tidal inundation frequency is a continuous variable measured as the proportion of time a microhabitat is flooded per tidal cycle, recorded using tidal monitoring stations. Microhabitats that are too rarely or too frequently inundated may not provide the shallow water depth conditions that Avocets need for successful foraging. 
 
 
 # Problem 2. Data analysis
@@ -113,9 +114,9 @@ The response variable `case_control` is binary and describes whether a tree in t
 
 ## c. Purpose of study
 
-- Tree height is a continuous predictor variable measured in centimeters. As tree height increases, the probability of nest occurrence in the tree would increase because taller trees provide more protection from predators on the ground that threaten the nesting birds (Results, paragraph 2). Taller trees may also offer more canopy structure for nest placement (Discussion, paragraph 5). 
+- **Tree height** is a continuous predictor variable measured in centimeters. As tree height increases, the probability of nest occurrence in the tree would increase because taller trees may provide greater protection from predators on the ground that threaten nesting birds (Results, paragraph 2). Taller trees may also offer more canopy structure for nest placement (Discussion, paragraph 5). 
 
-- Acacia ant species is a categorical predictor variable with three levels: C. sjostedti, C. mimosae, and C. nigriceps. Ant species type could predict nest occurrence because different ant species vary in their aggressiveness towards on the ground mammals that threaten the nesting birds, changing the amount of protection the nesting birds receive (Introduction, paragraph 2).  While C. mimosae and C. nigriceps aggressively defend trees against mammals, insect herbivores, and lethal herbivory by elephants, C. sjostedti only provides minimal protection against herbivory (Introduction, paragraph 2). Therefore, it is logical that nesting birds would prefer trees with C. mimosae and C. nigriceps colonies present showing mutualism (rephrase rooted more in the paper itself). 
+- **Acacia ant species** is a categorical predictor variable with three levels: \textit{C. sjostedti}, \textit{C. mimosae}, and \textit{C. nigriceps}. Ant species could predict nest occurrence because different ant species vary in their aggressiveness toward mammals on the ground that threaten nesting birds, thereby altering the level of protection available to nesting birds (Introduction, paragraph 2). While \textit{C. mimosae} and \textit{C. nigriceps} aggressively defend trees against mammals, insect herbivores, and lethal herbivory by elephants, \textit{C. sjostedti} only provides minimal protection against herbivory (Introduction, paragraph 2). Therefore, nesting birds may preferentially select trees occupied by \textit{C. mimosae} and \textit{C. nigriceps}, which offer greater protection, reflecting a mutualistic relationship between these ant species and birds.
 
 
 ## d. Table of models
@@ -140,7 +141,7 @@ model1 <- glm(case_control ~ height_cm + species_name,
             # binomial error distribution for binary response
             family = binomial)
 
-# model 2: interaction term (tree height x ant species)
+# model 2: interaction term (tree height times ant species)
 # formula: case_control as a function of tree height times ant species
 model2 <- glm(case_control ~ height_cm * species_name,
             # data: nests_clean data frame
@@ -162,9 +163,7 @@ AICc (model1,
 arrange (AICc)
 ```
 
-**Conclusion**: The best model as determined by Akaike's Information Criterion (AIC) is model 2 which displays the presence of nests as a function of tree height multiplied by ant species. 
-
--- CHECK FOR CORRECTNESS --  
+**Conclusion**: The best model as determined by Akaike's Information Criterion (AIC) is the model predicting probability of nest occurrence from tree height and ant species with an interaction term (tree height × ant species); this is model 2 in my code.
 
 
 ## g. Check the diagnostics
@@ -179,10 +178,10 @@ plot(simulateResiduals(model2))
 ```
 
 **Information from QQ plot of residuals**:
- There appears to be a uniform distribution because the points follow the reference line, which matches the quantiles of simulated residuals with quantiles of uniform distribution. The residuals do not appear more dispersed than expected from a uniform distribution, and there does not appear to be any outliers in the data set that could be influencing model coefficients or predictions. 
+The residuals appear uniformly distributed because the points closely follow the reference line matching the quantiles of simulated residuals with quantiles of uniform distribution. The residuals do not appear more dispersed than expected from a uniform distribution, and there does not appear to be any outliers in the data set that could be influencing model coefficients or predictions. 
 
 **Information from DHARMa residual vs predicted**:
-There appear to be randomly arranged residuals across the range of predicted values. 
+Residuals appear randomly distributed across the range of predicted values, with no clear pattern of concern. 
 
 
 ## h. Visualize the model predictions 
@@ -190,8 +189,7 @@ There appear to be randomly arranged residuals across the range of predicted val
 ```{r}
 #| label: visualize-model-predictions
 
-# generated model predictions across range of height values for each ant
-# species
+# generated model predictions across range of height values for each species
 preds <- ggpredict(
   model2, # model object 2
   terms = c("height_cm [all]", "species_name")) |>  # predictors 
@@ -207,22 +205,23 @@ preds <- ggpredict(
 #| fig-width: 10
 
 # base layer: ggplot
-ggplot(data = nests_clean, # data frame: nests_clean
+ggplot(data = nests_clean,                 # data frame: nests_clean
        mapping = aes(x = height_cm,        # x-axis: height (cm)
                      y = case_control )) + # y-axis: presence of nest (0/1)
   # first layer: underlying points representing individual observations
-  geom_point(aes(color = species_name), # colored points by ant species
+  geom_point(aes(color = species_name), # colored points by species
                  shape = 21,            # made the points open circle
                  alpha = 0.4) +         # made points more transparent
   # second layer: model prediction line
   geom_line(data = preds,                # data frame: preds for model 2
             mapping = aes(x = height_cm, # x-axis: height (cm)
                           y = predicted, # y-axis: predicted
-                          color = species_name), # colored line by ant species
-            linewidth = 2) +             # made line wider
+                          color = species_name), # colored lines by species
+            linewidth = 2) +             # increased line width
   # third layer: ribbon for 95% confidence interval
-  geom_ribbon(data = preds, # data frame: preds
-              mapping = aes(y = predicted, 
+  geom_ribbon(data = preds,                # data frame: preds for model 2
+              mapping = aes(x = height_cm, # x-axis: height (cm)
+                            y = predicted, 
                             ymin = conf.low, 
                             ymax = conf.high,
                             fill = species_name), # colored ribbon by species
@@ -261,7 +260,7 @@ ggplot(data = nests_clean, # data frame: nests_clean
 
 ## i. Write the caption for your figure
 
-**Figure 1. Probability of bird nest occurrence increases with tree height across all three acacia ant species.** Open circles represent individual tree observations (1 = nest present, 0 = nest absent), colored by ant species. C. sjostedti is represented in navy blue, C. mimosae in dark green, and C. nigriceps in dark brown. Solid lines represent model predicted probability of nest occurrence across the range of observed tree heights (0 to 600 cm), and shaded ribbons represent 95% confidence intervals. Data source: Lujan, E., Nielsen, R., Short, Z., Wicks, S., Nderitu Watetu, W., Malingati Khasoha, L., Palmer, T. M., Goheen, J. R., & Alston, J. M. (2023). Data, code, and metadata for: Symbiotic acacia ants drive nesting behavior by birds in an African savanna [Data set]. Zenodo. https://doi.org/10.5281/zenodo.8373322.  
+**Figure 1. Probability of bird nest occurrence increases with tree height across all three acacia ant species.** Open circles represent individual tree observations (1 = nest present, 0 = nest absent), colored by ant species. \textit{C. sjostedti} is represented in navy blue, \textit{C. mimosae} in dark green, and \textit{C. nigriceps} in dark brown. Solid lines represent model predicted probability of nest occurrence across the range of observed tree heights (0 to 600 cm), and shaded ribbons represent 95% confidence intervals. Data source: Lujan, E., Nielsen, R., Short, Z., Wicks, S., Nderitu Watetu, W., Malingati Khasoha, L., Palmer, T. M., Goheen, J. R., & Alston, J. M. (2023). Data, code, and metadata for: Symbiotic acacia ants drive nesting behavior by birds in an African savanna [Data set]. Zenodo. https://doi.org/10.5281/zenodo.8373322.  
 
 
 ## j. Calculate model predictions
@@ -278,9 +277,7 @@ ggpredict(model2,
 
 ## k. Interpret your results
 
-Tree height and ant species interact to predict probability of bird nest occurrence. As tree height increases, the probability of nest occurrence increases across presence of all three ant species, suggesting that taller trees are generally better nesting sites for birds regardless of ant species. At 600 cm, the predicted probability of nest occurrence is 0.20 (95% CI [0.00, 0.99]) for C. sjostedti, 0.74 (95% CI [0.48, 0.90]) for C. mimosae, and 1 (95% CI [1.00, 1.00]) for C. nigriceps. 
-
--- ADD ONE OR TWO MORE SENTENCES BASED ON PROMPT TO HIT ALL MARKS -- 
+Tree height and ant species interact to predict the probability of bird nest occurrence. As tree height increases, the probability of nest occurrence increases for all three ant species, suggesting that taller trees are generally better nesting sites for birds regardless of ant identity (Figure 1). At 600 cm, the predicted probability of nest occurrence is 0.20 (95% CI [0.00, 0.99]) for \textit{C. sjostedti}, 0.74 (95% CI [0.48, 0.90]) for \textit{C. mimosae}, and 1.00 (95% CI [1.00, 1.00]) for \textit{C. nigriceps}. These differences across ant species likely reflect variation in colony aggression — \textit{C. nigriceps} and \textit{C. mimosae} are known to aggressively defend trees against mammalian herbivores, potentially offering nesting birds greater protection from predators, while \textit{C. sjostedti} provides relatively minimal protection. Ant species identity therefore appears to be an important driver of nesting site presence independent of tree height, consistent with a mutualistic relationship between protective ant colonies and nesting birds.
 
 
 # Problem 3. Affective and exploratory visualizations
@@ -288,25 +285,25 @@ Tree height and ant species interact to predict probability of bird nest occurre
 ## a. Comparing visualizations
 **Note**: I compared my final affective visualization (presented in Workshop 10; different from the original draft in Homework 3) to the exploratory visualizations from Homework 2.
 
-- **Differences**: My affective visualization displays the logistic regression model (predicted probability of running as a function of sleep duration) within a hand drawn watercolor landscape, using illustrated runners and hourglasses as visual metaphors in place of geometric plot elements. Meanwhile, the two exploratory visualizations from Homework 2 prioritized clarity and efficiency over emotional and creative aspects, using standard statistical geometry. The boxplot with jitter directly compares the distributions of workout duration across three workout types (categorical groups), while the scatterplot shows the relationship between two continuous variables (sleep duration and workout duration) with no model overlaid and no artistic aspects. 
+- **Differences**: My affective visualization displays the logistic regression model (predicted probability of running as a function of sleep duration) within a hand drawn watercolor landscape, using illustrated runners and hourglasses as visual metaphors in place of geometric plot elements. In contrast, the two exploratory visualizations from Homework 2 used standard statistical geometry to prioritize clarity and efficiency over emotional and creative representation. The boxplot with jitter directly compares the distributions of workout duration across three workout types (categorical groups), while the scatterplot shows the relationship between two continuous variables (sleep duration and workout duration) with no model overlaid and no artistic elements. 
 
-- **Similarities**: All three visualizations use sleep duration or workout type on the x-axis and show some form of individual observations: the jittered open circles in the boxplot, the individual points in the scatterplot, and the binary data underlying the logistic curve in the affective visualization. 
+- **Similarities**: All three visualizations use sleep duration or workout type on the x-axis and show some form of individual observations: the jittered open circles in the boxplot, the individual points in the scatterplot, and the binary observations underlying the logistic curve in the affective visualization. 
 
-- **Patterns**: The scatterplot of sleep vs workout duration shows no clear trend; points are scattered without an obvious directional pattern, with most clustering around 60 minutes regardless of sleep duration. This is logical because workout duration includes lifts and yoga, which the boxplot shows are consistently around 60-65 minutes regardless of other factors; meanwhile, runs have a much wider spread (roughly 36-75 minutes) and the lowest median of the three groups. Isolating runs as a binary outcome in the affective visualization therefore reveals a cleaner pattern (a steep positive relationship between sleep and probability of running, rising from near zero at 5 hours to near 1 at 10 hours) than using duration across all workout types. 
+- **Patterns**: The scatterplot of sleep vs workout duration shows no clear trend; points are scattered without an obvious directional pattern, with most clustering around 60 minutes regardless of sleep duration. This pattern is expected because workout duration includes the lift and yoga workouts, which the boxplot shows are consistently around 60-65 minutes regardless of other factors; meanwhile, runs have a much wider spread (roughly 36-75 minutes) and the lowest median of the three groups. Isolating runs as a binary outcome in the affective visualization therefore reveals a cleaner pattern — a steep positive relationship between sleep and probability of running — than using duration across all workout types. 
 
 - **Feedback**: My original plan was to create my affective visualization from a boxplot with overlaid jitter comparing workout type against sleep duration the previous night. After meeting with An during week 9, I decided to narrow my focus to runs specifically, since runs had the most observations in my dataset and there appeared to be a relationship between sleep duration and whether or not I went on a run. My final affective visualization therefore depicts the probability of going on a run as a function of sleep duration, based on a binomial GLM rather than the boxplot I originally planned.
 
 
 ## b. Designing an analysis
 
-I used a binomial GLM to ask whether sleep duration the previous night (continuous, measured in hours) predicts the probability that my workout was a run (binary, 1 = run and 0 = all other workout types). This analysis was appropriate because the response variable is binary, so a standardized linear model can not be used as the assumption of normally distributed errors is not met. Therefore, I used a GLM with a binomial error distribution because this test is specifically designed for response variables that have outcomes of 0/1. Sleep is a continuous predictor variable, so it works as the explanatory variable in my logistic regression.  
+I used a binomial GLM to ask whether sleep duration the previous night (continuous, measured in hours) predicts the probability that my workout was a run (binary; 1 = run and 0 = all other workout types). This analysis was appropriate because the response variable is binary, so a standard linear model cannot be used, as the assumption of normally distributed errors would not be met. Therefore, I used a GLM with a binomial error distribution because this test is specifically designed for response variables that have outcomes of 0/1. Sleep is a continuous predictor variable, making it an appropriate continuous explanatory variable in the logistic regression.
 
 
 ## c. Check any assumptions and run your analysis
 
 ### Think about your data
 
-The assumptions for a binomial GLM are met. First, each workout entry represents a separate day, so observations are independent. Second, there are binary outcomes, seen through the response variable run having 1 (a run occurred) and 0 (a run did not occur) outcomes. Finally, the diagnostic plots (simulated below) do not flag any issues with distribution of residuals or presence of influential outliers. 
+The assumptions for a binomial GLM are met. First, each workout entry represents a separate day, so observations are independent. Second, the response variable is binary, with 1 indicating that a run occurred and 0 indicating that it did not. Finally, the diagnostic plots (simulated below) do not flag any issues with the distribution of residuals or presence of influential outliers. 
 
 
 ### Write your model
@@ -344,9 +341,9 @@ plot(simulateResiduals(run_mod))
 
 **Information from left plot (QQ plot of residuals)**:
 
-- **KS test**: Do my residuals follow a uniform distribution? → Generally yes
-- **Dispersion test**: Are your residuals more dispersed than expected from a uniform distribution? → No
-- **Outlier test**: Are there outliers in your data set that could be influencing model coefficients or predictions? → No
+- **KS test**: Do the residuals follow a uniform distribution? → Generally yes
+- **Dispersion test**: Are the residuals more dispersed than expected from a uniform distribution? → No
+- **Outlier test**: Are there outliers in the data set that could be influencing model coefficients or predictions? → No
 
 **Information from right plot (DHARMa residual vs predicted)**:
 
@@ -361,11 +358,6 @@ DHARMa diagnostics did not flag any issues, so it is reasonable to say that resi
 # displayed model summary
 summary(run_mod)
 ```
-
-**Note**: 
-
-- all estimates are log odds, so calculate the probability of a run when sleep is 0 below using inverse logit
-
 
 ```{r}
 #| label: coefficients-b0
@@ -400,10 +392,7 @@ tab_options(latex.tbl.pos = "h",        # h for render the table "here"
 - 2.97 > 1 so the probability of going on a run increases by a factor of 2.97 with every 1 hour increase in sleep (95% CI: [1.37, 9.40])
 
 
-### Looking at the model predictions
-
-- using probabilities to determine chance of getting certain outcome
-- line represents the probability of 1 (going on a run) actually occurring
+### Look at the model predictions
 
 ```{r}
 #| label: personal-model-predictions
@@ -416,7 +405,8 @@ ggpredict(run_mod,
 ggpredict(run_mod,
           terms = "sleep_hours [4]")
 
-# what is the probability of going on a run after sleeping for 7 hours (the average sleep duration in my dataset)?
+# what is the probability of going on a run after sleeping for 7 hours
+# (the average sleep duration in my dataset)?
 ggpredict(run_mod,
           terms = "sleep_hours [7]")
 ```
@@ -430,7 +420,7 @@ ggpredict(run_mod,
 
 ## d. Create a visualization
 
-### Visualizing model predictions
+### Visualize model predictions
 
 ```{r}
 #| label: visualizing-model
@@ -474,11 +464,10 @@ ggplot(my_data,             # data frame: my_data
   theme(plot.title = element_text(face = "bold")) +
   # removed legend
   theme(legend.position = "none")
-
 ```
 
 
-### Describing the model
+### Describe the model
 
 ```{r}
 #| label: describing-model
@@ -489,11 +478,11 @@ as_flextable(run_mod)
 
 
 ## e. Write a caption
-**Figure 2. Longer sleep duration is associated with a higher probability of going on a run the next day**. Blue circles represent individual workout observations (0 = not a run, 1 = run). The navy blue line represents model predicted probability of running across the range of observed sleep values (5-10 hours), and the shaded blue ribbon represents the 95% confidence interval around model predictions. Data collected from personal fitness tracking records between 2026-04-14 and 2025-05-26. 
+**Figure 2. Longer sleep duration is associated with a higher probability of going on a run the next day**. Navy circles represent individual workout observations (0 = not a run, 1 = run). The navy blue line represents model predicted probability of running across the range of observed sleep values (5-10 hours), and the shaded blue ribbon represents the 95% confidence interval around model predictions. Data collected from personal fitness tracking records between 2026-04-14 and 2026-05-26. 
 
 
 ## f. Write about your results
-I tend to go on runs more often on days following nights with more sleep. For every 1 hour increase in sleep the previous night, the odds of going on a run increased by a factor of 2.97 (95% CI: [1.37, 9.40], p = 0.021, $\alpha$ = 0.05). After sleeping for 10 hours, the probability of going on a run the next day is 0.90 (95% CI [0.39, 0.99]), compared to a probability of 0.01 (95% CI [0.00, 0.25]) after sleeping for only 4 hours. This suggests that sleep duration has an influence on the likelihood that I'll run the next day. 
+I tend to go on runs more often on days following nights with more sleep. For every 1 hour increase in sleep the previous night, the odds of going on a run increased by a factor of 2.97 (95% CI: [1.37, 9.40], p = 0.021, $\alpha$ = 0.05). After sleeping for 10 hours, the probability of going on a run the next day is 0.90 (95% CI [0.39, 0.99]), compared to a probability of 0.01 (95% CI [0.00, 0.25]) after sleeping for only 4 hours. These results suggest that sleep duration substantially influences the probability of running the following day.
 
 
 ## g. Sharing your affective visualization
