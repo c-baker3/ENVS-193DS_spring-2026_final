@@ -26,6 +26,7 @@ library(ggeffects) # for ggpredict
 library(flextable) # for flextable
 library(gtsummary) # for GLM
 library(MuMIn) # for AIC
+library(gt) # for gt summary table
 
 # read in data
 nests <- read_csv(here("data", "nest_data_final.csv"))
@@ -112,11 +113,9 @@ The response variable `case_control` is binary and describes whether a tree in t
 
 ## c. Purpose of study
 
-- Tree height is a continuous predictor variable (centimeters). As tree height increases, the probability of nest presence in the tree will likely increase because taller trees provide more protection from predators on the ground; taller trees also offer more canpoy structure for effective nest placement This reasoning was found WHERE. 
--- FINISH WITH CITATION. 
+- Tree height is a continuous predictor variable measured in centimeters. As tree height increases, the probability of nest occurrence in the tree would increase because taller trees provide more protection from predators on the ground that threaten the nesting birds (Results, paragraph 2). Taller trees may also offer more canopy structure for nest placement (Discussion, paragraph 5). 
 
-- Acacia ant species is a categorical predictor variable with three levels: C. sjostedti, C. mimosae, and C. nigriceps. Ant species type could predict nest occurrence because different species display different levels of aggressiveness and have different colony sizes; these factors may either attract or deter nesting birds depending on whether the ants provide protection from predators or themselves threaten the birds. This reasoning was found WHERE. 
--- FINISH WITH CITATION
+- Acacia ant species is a categorical predictor variable with three levels: C. sjostedti, C. mimosae, and C. nigriceps. Ant species type could predict nest occurrence because different ant species vary in their aggressiveness towards on the ground mammals that threaten the nesting birds, changing the amount of protection the nesting birds receive (Introduction, paragraph 2).  While C. mimosae and C. nigriceps aggressively defend trees against mammals, insect herbivores, and lethal herbivory by elephants, C. sjostedti only provides minimal protection against herbivory (Introduction, paragraph 2). Therefore, it is logical that nesting birds would prefer trees with C. mimosae and C. nigriceps colonies present showing mutualism (rephrase rooted more in the paper itself). 
 
 
 ## d. Table of models
@@ -163,7 +162,9 @@ AICc (model1,
 arrange (AICc)
 ```
 
-**Conclusion**: The best model as determined by Akaike's Information Criterion (AIC) is model 2 which displays the presence of nests as a function of tree height multiplied by ant species. CHECK FOR CORRECTNESS. 
+**Conclusion**: The best model as determined by Akaike's Information Criterion (AIC) is model 2 which displays the presence of nests as a function of tree height multiplied by ant species. 
+
+-- CHECK FOR CORRECTNESS --  
 
 
 ## g. Check the diagnostics
@@ -175,7 +176,6 @@ arrange (AICc)
 
 # simulated residuals from DHARMa for model 2
 plot(simulateResiduals(model2))
-
 ```
 
 **Information from QQ plot of residuals**:
@@ -278,12 +278,9 @@ ggpredict(model2,
 
 ## k. Interpret your results
 
-Tree height and ant species interact to predict probability of bird nest occurrence. As tree height increases, the probability of nest occurrence increases across presence of all three ant species, suggesting that taller trees are generally better nesting sites for birds regardless of ant species. 
+Tree height and ant species interact to predict probability of bird nest occurrence. As tree height increases, the probability of nest occurrence increases across presence of all three ant species, suggesting that taller trees are generally better nesting sites for birds regardless of ant species. At 600 cm, the predicted probability of nest occurrence is 0.20 (95% CI [0.00, 0.99]) for C. sjostedti, 0.74 (95% CI [0.48, 0.90]) for C. mimosae, and 1 (95% CI [1.00, 1.00]) for C. nigriceps. 
 
-Additionally, the effect of tree height on nest occurrence probability differs across ant species, with C. nigriceps showing the strongest relationship (odds ratio: [X]) and C. sjostedti showing the weakest (odds ratio: [X]).
--- FILL IN EFFECT SIZE FROM ODDS RATIO??
-
-At 600 cm, the predicted probability of nest occurrence is 0.20 (95% CI [0.00, 0.99]) for C. sjostedti, 0.74 (95% CI [0.48, 0.90]) for C. mimosae, and 1 (95% CI [1.00, 1.00]) for C. nigriceps.
+-- ADD ONE OR TWO MORE SENTENCES BASED ON PROMPT TO HIT ALL MARKS -- 
 
 
 # Problem 3. Affective and exploratory visualizations
@@ -309,7 +306,8 @@ I used a binomial GLM to ask whether sleep duration the previous night (continuo
 
 ### Think about your data
 
-The assumptions for a binomial GLM are met. First, each workout entry represents a separate day, so observations are independent. Second, there are binary outcomes, seen through the response variable run having 1 (a run occurred) and 0 (a run did not occur) outcomes. Finally, there is a linear relationship between transformed expected response in terms of link function and explanatory variables (WHAT DOES THIS MEAN -- REPHRASE). 
+The assumptions for a binomial GLM are met. First, each workout entry represents a separate day, so observations are independent. Second, there are binary outcomes, seen through the response variable run having 1 (a run occurred) and 0 (a run did not occur) outcomes. Finally, the diagnostic plots (simulated below) do not flag any issues with distribution of residuals or presence of influential outliers. 
+
 
 ### Write your model
 
@@ -352,7 +350,7 @@ plot(simulateResiduals(run_mod))
 
 **Information from right plot (DHARMa residual vs predicted)**:
 
-In visually assessing for randomly arranged residuals across the range of predicted values, DHARMa diagnostics flag issues in the 25th quartile. This is likely due to the small sample size, not because the model is wrong. Therefore, it it reasonable to say that residuals are randomly arranged across the range of predicted values. 
+DHARMa diagnostics did not flag any issues, so it is reasonable to say that residuals are randomly arranged across the range of predicted values. 
 
 
 ### Look at the model coefficients
@@ -368,8 +366,6 @@ summary(run_mod)
 
 - all estimates are log odds, so calculate the probability of a run when sleep is 0 below using inverse logit
 
-
-### Calculate an effect size
 
 ```{r}
 #| label: coefficients-b0
@@ -389,12 +385,17 @@ plogis(-8.7011)
 
 # calculated odds ratio
 gtsummary::tbl_regression(run_mod, 
-                          exponentiate = TRUE)
+                          exponentiate = TRUE) |> 
+# converted to gt object for formatting
+as_gt() |>
+# rendered table to correct position
+tab_options(latex.tbl.pos = "h",        # h for render the table "here"
+            latex.use_longtable = TRUE, # set PDF rendering option
+            table.width = px(500))      # made the table wider
 ```
 
 **Interpretation**:
 
-- *results table rendered at the top of this page*
 - odds ratio: 2.97
 - 2.97 > 1 so the probability of going on a run increases by a factor of 2.97 with every 1 hour increase in sleep (95% CI: [1.37, 9.40])
 
@@ -414,12 +415,17 @@ ggpredict(run_mod,
 # what is the probability of going on a run after sleeping for 4 hours?
 ggpredict(run_mod,
           terms = "sleep_hours [4]")
+
+# what is the probability of going on a run after sleeping for 7 hours (the average sleep duration in my dataset)?
+ggpredict(run_mod,
+          terms = "sleep_hours [7]")
 ```
 
 **Note**:
 
 - If I slept for 10 hours, the probability of going on a run the next day is 0.90 (95% CI [0.39, 0.99]).
 - If I slept for 4 hours, the probability of going on a run the next day is 0.01 (95% CI [0.00, 0.25]).
+- If I slept for 7 hours, the probability of going on a run the next day is 0.25 (95% CI [0.11, 0.47]).
 
 
 ## d. Create a visualization
@@ -487,7 +493,7 @@ as_flextable(run_mod)
 
 
 ## f. Write about your results
-I tended to go on runs more often on days following nights with more sleep. For every 1 hour increase in sleep the previous night, the odds of going on a run increased by a factor of 2.97 (95% CI: [1.37, 9.40], p = 0.021, $\alpha$ = 0.05). After sleeping for 10 hours, the probability of going on a run the next day is 0.90 (95% CI [0.39, 0.99]), compared to a probability of 0.01 (95% CI [0.00, 0.25]) after sleeping for only 4 hours. This suggests that sleep duration has an influence on my likelihood of running. 
+I tend to go on runs more often on days following nights with more sleep. For every 1 hour increase in sleep the previous night, the odds of going on a run increased by a factor of 2.97 (95% CI: [1.37, 9.40], p = 0.021, $\alpha$ = 0.05). After sleeping for 10 hours, the probability of going on a run the next day is 0.90 (95% CI [0.39, 0.99]), compared to a probability of 0.01 (95% CI [0.00, 0.25]) after sleeping for only 4 hours. This suggests that sleep duration has an influence on the likelihood that I'll run the next day. 
 
 
 ## g. Sharing your affective visualization
