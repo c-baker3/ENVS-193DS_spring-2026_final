@@ -11,8 +11,6 @@ The `code` folder includes all code used for the assignment.
 
 The `data` folder includes all data files used for the assignment.
 
-The `images` folder includes all image files used for the assignment. 
-
 ## Rendered output
 
 The rendered output for the Final is [here](https://github.com/c-baker3/ENVS-193DS_spring-2026_final/blob/main/code/ENVS-193DS_spring-2026_final.pdf).
